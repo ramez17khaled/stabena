@@ -1,4 +1,5 @@
 // pages/index.js
+import Head from 'next/head'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -42,6 +43,17 @@ export default function Home() {
 
   return (
     <div style={{ background: 'var(--color-bg)', minHeight: '100vh' }} dir={isRTL ? 'rtl' : 'ltr'}>
+      <Head>
+        <title>Stabena — Mode & Tendances</title>
+        <meta name="description" content="Découvrez Stabena, votre boutique de mode en ligne. Collections tendances, livraison rapide, qualité premium." />
+        <meta name="keywords" content="stabena, mode, vêtements, boutique en ligne, tendances, fashion" />
+        <meta property="og:title" content="Stabena — Mode & Tendances" />
+        <meta property="og:description" content="Découvrez Stabena, votre boutique de mode en ligne." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={process.env.NEXT_PUBLIC_SITE_URL} />
+        <meta property="og:image" content={`${process.env.NEXT_PUBLIC_SITE_URL}/logo.jpg`} />
+        <link rel="canonical" href={process.env.NEXT_PUBLIC_SITE_URL} />
+      </Head>
       <Navbar />
 
       {/* Hero */}
