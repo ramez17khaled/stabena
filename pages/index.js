@@ -187,9 +187,19 @@ export default function Home() {
           </div>
           <div>
             <h5 className="text-sm font-medium mb-3 tracking-wider uppercase" style={arabicFont}>{t('footer_service')}</h5>
-            {[t('footer_delivery'), t('footer_returns'), t('footer_faq')].map(l => (
-              <p key={l} className="text-sm mb-2" style={{ color: 'var(--color-muted)', ...arabicFont }}>{l}</p>
-            ))}
+            <Link href="/returns"
+              className="block text-sm mb-2 hover:text-accent transition-colors"
+              style={{ color: 'var(--color-muted)', ...arabicFont }}>
+              {t('footer_returns')}
+            </Link>
+
+            <p className="text-sm mb-2" style={{ color: 'var(--color-muted)', ...arabicFont }}>
+              {t('footer_delivery')}
+            </p>
+
+            <p className="text-sm mb-2" style={{ color: 'var(--color-muted)', ...arabicFont }}>
+              {t('footer_faq')}
+            </p>
             <Link href="/contact" className="block text-sm mb-2 hover:text-accent transition-colors"
               style={{ color: 'var(--color-muted)', ...arabicFont }}>
               {t('footer_contact')}
