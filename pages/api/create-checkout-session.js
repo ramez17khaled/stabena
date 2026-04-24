@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   try {
     const lineItems = items.map(item => ({
       price_data: {
-        currency: 'eur',
+        currency: 'usd',
         product_data: {
           name: item.name,
           ...(item.image ? { images: [item.image] } : {}),
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     if (shipping > 0) {
       lineItems.push({
         price_data: {
-          currency: 'eur',
+          currency: 'usd',
           product_data: { name: 'Livraison' },
           unit_amount: Math.round(shipping * 100),
         },

@@ -106,7 +106,7 @@ export default function AdminOrders() {
                   <p className="text-sm" style={{ color: 'var(--color-muted)' }}>
                     {new Date(order.created_at).toLocaleDateString('fr-FR')}
                   </p>
-                  <p className="text-sm font-medium">{parseFloat(order.total_amount).toFixed(2)} €</p>
+                  <p className="text-sm font-medium">${parseFloat(order.total_amount).toFixed(2)}</p>
                   <span className="px-2 py-1 rounded-full text-xs font-medium w-fit"
                     style={{ background: `${status.color}15`, color: status.color }}>
                     {status.label}
@@ -139,7 +139,7 @@ export default function AdminOrders() {
                             </p>
                           </div>
                           <p className="text-sm font-medium">
-                            {(item.price * item.quantity).toFixed(2)} €
+                            ${(item.price * item.quantity).toFixed(2)}
                           </p>
                         </div>
                       ))}
@@ -147,7 +147,7 @@ export default function AdminOrders() {
                     <div className="mt-4 pt-4 border-t flex justify-between"
                       style={{ borderColor: 'var(--color-border)' }}>
                       <p className="text-sm font-medium">Total</p>
-                      <p className="text-sm font-medium">{parseFloat(order.total_amount).toFixed(2)} €</p>
+                      <p className="text-sm font-medium">${parseFloat(order.total_amount).toFixed(2)}</p>
                     </div>
                   </div>
 

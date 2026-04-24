@@ -30,7 +30,7 @@ export default function AdminDashboard() {
     { label: 'Commandes', value: stats.totalOrders, icon: ShoppingBag, color: '#3b82f6' },
     { label: 'Produits', value: stats.totalProducts, icon: Package, color: '#8b5cf6' },
     { label: 'Clients', value: stats.totalUsers, icon: Users, color: '#10b981' },
-    { label: 'Revenus', value: `${stats.totalRevenue.toFixed(2)} €`, icon: TrendingUp, color: '#f59e0b' },
+    { label: 'Revenus', value: `$${stats.totalRevenue.toFixed(2)}`, icon: TrendingUp, color: '#f59e0b' },
   ] : []
 
   return (
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
                     {new Date(order.created_at).toLocaleDateString('fr-FR')}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium">
-                    {parseFloat(order.total_amount).toFixed(2)} €
+                    ${parseFloat(order.total_amount).toFixed(2)}
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-2 py-1 rounded-full text-xs font-medium"

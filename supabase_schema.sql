@@ -217,3 +217,50 @@ insert into public.products (name, slug, description, price, compare_price, stoc
   ('Jean Slim Homme', 'jean-slim-homme', 'Jean slim coupe moderne, confortable et stylé.', 49.99, null, 40, true, ARRAY['30','32','34','36','38'], ARRAY['Bleu','Noir','Gris'], ARRAY['https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=600']),
   ('Blazer Oversize', 'blazer-oversize', 'Blazer tendance coupe oversize, idéal pour un look business casual.', 89.99, 120.00, 15, true, ARRAY['XS','S','M','L'], ARRAY['Beige','Noir','Camel'], ARRAY['https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600']),
   ('Sac Cabas Cuir', 'sac-cabas-cuir', 'Grand sac cabas en cuir véritable, pratique et tendance.', 129.99, null, 10, false, ARRAY[]::text[], ARRAY['Marron','Noir','Crème'], ARRAY['https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600']);
+
+-- ============================================
+-- MIGRATIONS ANNIVERSAIRE
+-- Exécuter ces commandes dans Supabase SQL Editor
+-- ============================================
+
+-- Ajouter les colonnes anniversaire au profil
+alter table public.profiles
+  add column if not exists birthdate date,
+  add column if not exists birthday_coupon_year integer,
+  add column if not exists first_name text,
+  add column if not exists last_name text,
+  add column if not exists country text;
+
+-- Table des codes de réduction
+create table if not exists public.discount_codes (
+  id uuid default gen_random_uuid() primary key,
+  code text unique not null,
+  user_id uuid references public.profiles(id) on delete cascade,
+  discount_percent integer not null,
+  min_order_amount decimal(10,2) default 80.00,
+  expires_at timestamp with time zone not null,
+  used_at timestamp with time zone,
+  created_at timestamp with time zone default now()
+);
+
+alter table public.discount_codes enable row level security;
+
+create policy "Users can view own discount codes" on public.discount_codes
+  for select using (auth.uid() = user_id);
+
+-- Fonction Postgres pour trouver les anniversaires du jour
+create or replace function get_birthday_users(p_month int, p_day int)
+returns table (
+  id uuid, email text, full_name text, first_name text,
+  lang text, birthdate date, birthday_coupon_year integer
+) as $$
+  select
+    p.id, p.email, p.full_name, p.first_name,
+    p.lang, p.birthdate, p.birthday_coupon_year
+  from public.profiles p
+  where
+    p.birthdate is not null
+    and extract(month from p.birthdate) = p_month
+    and extract(day from p.birthdate) = p_day
+    and (p.birthday_coupon_year is null or p.birthday_coupon_year < extract(year from current_date)::integer);
+$$ language sql security definer;

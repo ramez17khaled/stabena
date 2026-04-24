@@ -87,10 +87,10 @@ export default function ProductCard({ product }) {
         </p>
         <h3 className="font-display text-lg leading-tight">{product.name}</h3>
         <div className="flex items-center gap-2">
-          <span className="font-medium">{product.price.toFixed(2)} €</span>
+          <span className="font-medium">${product.price.toFixed(2)}</span>
           {product.compare_price && (
             <span className="text-sm line-through" style={{ color: 'var(--color-muted)' }}>
-              {product.compare_price.toFixed(2)} €
+              ${product.compare_price.toFixed(2)}
             </span>
           )}
         </div>

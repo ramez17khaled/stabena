@@ -153,10 +153,10 @@ export default function AdminProducts() {
                 </td>
                 <td className="px-6 py-4 text-sm">
                   <div>
-                    <p className="font-medium">{parseFloat(p.price).toFixed(2)} €</p>
+                    <p className="font-medium">${parseFloat(p.price).toFixed(2)}</p>
                     {p.compare_price && (
                       <p className="line-through text-xs" style={{ color: 'var(--color-muted)' }}>
-                        {parseFloat(p.compare_price).toFixed(2)} €
+                        ${parseFloat(p.compare_price).toFixed(2)}
                       </p>
                     )}
                   </div>

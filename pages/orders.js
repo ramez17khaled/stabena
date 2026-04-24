@@ -93,7 +93,7 @@ export default function OrdersPage() {
                             Qté: {item.quantity} {item.size && `• ${item.size}`}
                           </p>
                         </div>
-                        <p className="text-sm font-medium">{(item.price * item.quantity).toFixed(2)} €</p>
+                        <p className="text-sm font-medium">${(item.price * item.quantity).toFixed(2)}</p>
                       </div>
                     ))}
                   </div>
@@ -106,7 +106,7 @@ export default function OrdersPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-xs" style={{ color: 'var(--color-muted)' }}>Total</p>
-                      <p className="font-medium">{parseFloat(order.total_amount).toFixed(2)} €</p>
+                      <p className="font-medium">${parseFloat(order.total_amount).toFixed(2)}</p>
                     </div>
                   </div>
                 </div>

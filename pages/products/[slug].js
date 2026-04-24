@@ -212,10 +212,10 @@ export default function ProductDetail() {
               )}
 
               <div className="flex items-center gap-3">
-                <span className="text-2xl font-medium">{product.price.toFixed(2)} €</span>
+                <span className="text-2xl font-medium">${product.price.toFixed(2)}</span>
                 {product.compare_price && (
                   <span className="text-lg line-through" style={{ color: 'var(--color-muted)' }}>
-                    {product.compare_price.toFixed(2)} €
+                    ${product.compare_price.toFixed(2)}
                   </span>
                 )}
               </div>
