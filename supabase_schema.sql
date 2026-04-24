@@ -84,7 +84,7 @@ create table public.orders (
 create table public.order_items (
   id uuid default gen_random_uuid() primary key,
   order_id uuid references public.orders(id) on delete cascade,
-  product_id uuid references public.products(id),
+  product_id uuid references public.products(id) on delete set null,
   quantity integer not null,
   price decimal(10,2) not null,
   size text,

@@ -14,6 +14,15 @@ const EMPTY_PRODUCT = {
   is_active: true, is_featured: false, selectedCategoryIds: []
 }
 
+const Field = ({ label, ...props }) => (
+  <div>
+    <label className="text-xs tracking-widest uppercase block mb-1"
+      style={{ color: 'var(--color-muted)' }}>{label}</label>
+    <input className="w-full px-3 py-2 border text-sm outline-none bg-transparent"
+      style={{ borderColor: 'var(--color-border)' }} {...props} />
+  </div>
+)
+
 export default function AdminProducts() {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
@@ -98,15 +107,6 @@ export default function AdminProducts() {
     if (error) toast.error('Erreur')
     else { toast.success('Produit supprimé'); load() }
   }
-
-  const Field = ({ label, ...props }) => (
-    <div>
-      <label className="text-xs tracking-widest uppercase block mb-1"
-        style={{ color: 'var(--color-muted)' }}>{label}</label>
-      <input className="w-full px-3 py-2 border text-sm outline-none bg-transparent"
-        style={{ borderColor: 'var(--color-border)' }} {...props} />
-    </div>
-  )
 
   return (
     <AdminLayout title="Produits">
