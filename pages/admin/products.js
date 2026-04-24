@@ -249,9 +249,9 @@ export default function AdminProducts() {
                   className="w-full px-3 py-2 border text-sm outline-none bg-transparent resize-none"
                   style={{ borderColor: 'var(--color-border)' }} />
               </div>
-              <Field label="Prix (€) *" type="number" step="0.01" value={form.price}
+              <Field label="Prix ($) *" type="number" step="0.01" value={form.price}
                 onChange={e => setForm({ ...form, price: e.target.value })} />
-              <Field label="Prix barré (€)" type="number" step="0.01" value={form.compare_price}
+              <Field label="Prix barré ($)" type="number" step="0.01" value={form.compare_price}
                 onChange={e => setForm({ ...form, compare_price: e.target.value })} />
               <Field label="Stock" type="number" value={form.stock}
                 onChange={e => setForm({ ...form, stock: e.target.value })} />

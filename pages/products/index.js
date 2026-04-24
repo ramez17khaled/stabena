@@ -208,7 +208,7 @@ export default function ProductsPage() {
                 {/* Prix max */}
                 <div className="mb-8">
                   <h4 className="text-xs tracking-widest uppercase mb-3 font-medium" style={arabicFont}>
-                    {lang === 'ar' ? `الحد الأقصى: ${priceMax}€` : `Prix max : ${priceMax} €`}
+                    {lang === 'ar' ? `الحد الأقصى: ${priceMax}$` : `Prix max : ${priceMax} $`}
                   </h4>
                   <input type="range" min="20" max="500" step="10" value={priceMax}
                     onChange={e => setPriceMax(Number(e.target.value))}

@@ -299,7 +299,7 @@ export default function ProductDetail() {
             {/* Services */}
             <div className="border-t pt-6 space-y-3" style={{ borderColor: 'var(--color-border)' }}>
               {[
-                { icon: Truck, text: lang === 'ar' ? 'شحن مجاني من 80€' : 'Livraison offerte dès 80€' },
+                { icon: Truck, text: lang === 'ar' ? 'شحن مجاني من 80$' : 'Livraison offerte dès 80$' },
                 { icon: RotateCcw, text: lang === 'ar' ? 'إرجاع مجاني خلال 30 يوماً' : 'Retours gratuits sous 30 jours' },
                 { icon: Shield, text: lang === 'ar' ? 'دفع آمن 100%' : 'Paiement 100% sécurisé' },
               ].map(({ icon: Icon, text }) => (
