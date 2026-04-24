@@ -171,6 +171,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <img src="/logo.jpg" alt="Stabena" className="h-14 w-auto object-contain mb-3" />
+            <img src="https://scontent-cdg6-1.cdninstagram.com/v/t51.82787-19/504382857_17971662086913093_98522060138893124_n.jpg?stp=dst-jpg_s150x150_tt6&_nc_cat=103&ccb=7-5&_nc_sid=f7ccc5&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLnd3dy4xMDgwLkMzIn0%3D&_nc_ohc=amjrZOvSpdgQ7kNvwF2BeEl&_nc_oc=Adr1xECzsQxTcEyHF-98DHCAeWAgt7pYQRfZo0KvLZqts3G3E_YKJaR89oOn-DV5VAw&_nc_zt=24&_nc_ht=scontent-cdg6-1.cdninstagram.com&_nc_gid=LdZ1AqIhRXLMfQcUA2QzTw&_nc_ss=7b289&oh=00_Af0GNjFs4ZQyTYXKTPnPRhKYIB2JSFBB5jZ_i5BmAkFlCg&oe=69F11894" alt="Stabena" className="h-14 w-auto object-contain mb-3" />
             <p className="text-sm" style={{ color: 'var(--color-muted)', ...arabicFont }}>
               {lang === 'ar' ? 'عطور، جمال وموضة منذ 2024.' : 'Parfums, beauté & mode depuis 2024.'}
             </p>
