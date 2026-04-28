@@ -1,7 +1,7 @@
 // components/shared/AuthModal.js
 import { useState } from 'react'
 import { X, Phone, Mail, Eye, EyeOff, ArrowLeft } from 'lucide-react'
-import { supabase, signIn, signUp } from '../../lib/supabase'
+import { supabase, signIn } from '../../lib/supabase'
 import { useLang } from '../../lib/LangContext'
 import toast from 'react-hot-toast'
 
@@ -27,52 +27,18 @@ const COUNTRIES = [
   { code: 'CH', name: 'Suisse', nameAr: 'سويسرا', dial: '+41' },
 ]
 
-export default function AuthModal({ onClose, onSuccess }) {
-  const { lang, isRTL } = useLang()
-  const ar = lang === 'ar'
-  const f = (fr, arText) => ar ? arText : fr
-
-  const [step, setStep] = useState('choice') // choice | login-email | login-phone | otp | register
-  const [showPass, setShowPass] = useState(false)
-  const [loading, setLoading] = useState(false)
-
-  // Login email
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-
-  // Login phone
-  const [dialCode, setDialCode] = useState('+961')
-  const [phoneNum, setPhoneNum] = useState('')
-  const [otpCode, setOtpCode] = useState('')
-
-  // Register
-  const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', password: '', confirmPassword: '',
-    dialCode: '+961', phone: '', birthdate: '', country: 'LB',
-    addressType: 'description', addressDesc: '', street: '', city: '', zip: '',
-  })
-
-  const inputStyle = {
+// Defined OUTSIDE to avoid focus loss on re-render
+const PhoneRow = ({ dialVal, onDial, phoneVal, onPhone, ar, isRTL }) => {
+  const style = {
     width: '100%', padding: '12px 16px', fontSize: '14px',
     background: '#f8f5f2', border: '1.5px solid #e0d8d0', borderRadius: '10px',
     color: '#2c3e50', outline: 'none', fontFamily: ar ? 'Arial, sans-serif' : 'inherit',
-    textAlign: isRTL ? 'right' : 'left', boxSizing: 'border-box'
+    textAlign: isRTL ? 'right' : 'left', boxSizing: 'border-box',
   }
-  const labelStyle = {
-    display: 'block', fontSize: '11px', letterSpacing: '0.1em',
-    textTransform: 'uppercase', color: '#9a9085', marginBottom: '5px',
-    fontFamily: ar ? 'Arial, sans-serif' : 'inherit'
-  }
-  const btnPrimary = {
-    width: '100%', padding: '13px', fontSize: '14px', color: 'white', border: 'none',
-    background: 'linear-gradient(135deg, #6a7fa0, #8a9bb5)', borderRadius: '10px',
-    cursor: 'pointer', fontFamily: ar ? 'Arial, sans-serif' : 'inherit', fontWeight: '500'
-  }
-
-  const PhoneRow = ({ dialVal, onDial, phoneVal, onPhone }) => (
+  return (
     <div style={{ display: 'flex', gap: '8px' }}>
       <select value={dialVal} onChange={e => onDial(e.target.value)}
-        style={{ ...inputStyle, width: '120px', flexShrink: 0 }}>
+        style={{ ...style, width: '120px', flexShrink: 0 }}>
         {COUNTRIES.map(c => (
           <option key={c.code} value={c.dial}>
             {c.dial} {ar ? c.nameAr : c.name}
@@ -80,10 +46,57 @@ export default function AuthModal({ onClose, onSuccess }) {
         ))}
       </select>
       <input type="tel" value={phoneVal} onChange={e => onPhone(e.target.value)}
-        placeholder={f('Numéro', 'الرقم')}
-        style={{ ...inputStyle, flex: 1 }} dir="ltr" />
+        placeholder={ar ? 'الرقم' : 'Numéro'}
+        style={{ ...style, flex: 1 }} dir="ltr" />
     </div>
   )
+}
+
+export default function AuthModal({ onClose, onSuccess }) {
+  const { lang, isRTL } = useLang()
+  const ar = lang === 'ar'
+  const f = (fr, arText) => ar ? arText : fr
+
+  // steps: choice | login-email | login-phone | otp | register | register-otp
+  const [step, setStep] = useState('choice')
+  const [showPass, setShowPass] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  // Login email
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  // Login / register phone OTP
+  const [dialCode, setDialCode] = useState('+961')
+  const [phoneNum, setPhoneNum] = useState('')
+  const [otpCode, setOtpCode] = useState('')
+
+  // Register form
+  const [form, setForm] = useState({
+    firstName: '', lastName: '', email: '', password: '', confirmPassword: '',
+    dialCode: '+961', phone: '', birthdate: '', country: 'LB',
+    addressType: 'description', addressDesc: '', street: '', city: '', zip: '',
+  })
+  const [pendingRegisterData, setPendingRegisterData] = useState(null)
+
+  const phoneOnly = !form.email && form.phone.length > 0
+
+  const inputStyle = {
+    width: '100%', padding: '12px 16px', fontSize: '14px',
+    background: '#f8f5f2', border: '1.5px solid #e0d8d0', borderRadius: '10px',
+    color: '#2c3e50', outline: 'none', fontFamily: ar ? 'Arial, sans-serif' : 'inherit',
+    textAlign: isRTL ? 'right' : 'left', boxSizing: 'border-box',
+  }
+  const labelStyle = {
+    display: 'block', fontSize: '11px', letterSpacing: '0.1em',
+    textTransform: 'uppercase', color: '#9a9085', marginBottom: '5px',
+    fontFamily: ar ? 'Arial, sans-serif' : 'inherit',
+  }
+  const btnPrimary = {
+    width: '100%', padding: '13px', fontSize: '14px', color: 'white', border: 'none',
+    background: 'linear-gradient(135deg, #6a7fa0, #8a9bb5)', borderRadius: '10px',
+    cursor: 'pointer', fontFamily: ar ? 'Arial, sans-serif' : 'inherit', fontWeight: '500',
+  }
 
   // ── LOGIN EMAIL ──
   const handleLoginEmail = async (e) => {
@@ -95,15 +108,15 @@ export default function AuthModal({ onClose, onSuccess }) {
     setLoading(false)
   }
 
-  // ── OTP PHONE ──
-  const handleSendOTP = async (e) => {
-    e.preventDefault()
-    if (!phoneNum) { toast.error(f('Entrez votre numéro', 'أدخل رقم هاتفك')); return }
+  // ── OTP SEND (login phone OR register phone-only) ──
+  const handleSendOTP = async (e, phone, dial) => {
+    if (e) e.preventDefault()
+    const num = (dial || dialCode) + (phone || phoneNum).replace(/^0/, '')
+    if (!num.replace(/\+/, '')) { toast.error(f('Entrez votre numéro', 'أدخل رقم هاتفك')); return }
     setLoading(true)
-    const full = dialCode + phoneNum.replace(/^0/, '')
-    const { error } = await supabase.auth.signInWithOtp({ phone: full })
+    const { error } = await supabase.auth.signInWithOtp({ phone: num })
     if (error) toast.error(error.message)
-    else { toast.success(f('Code SMS envoyé !', 'تم إرسال الرمز!')); setStep('otp') }
+    else { toast.success(f('Code SMS envoyé !', 'تم إرسال الرمز!')); setStep(step === 'register' ? 'register-otp' : 'otp') }
     setLoading(false)
   }
 
@@ -112,29 +125,77 @@ export default function AuthModal({ onClose, onSuccess }) {
     setLoading(true)
     const full = dialCode + phoneNum.replace(/^0/, '')
     const { error } = await supabase.auth.verifyOtp({ phone: full, token: otpCode, type: 'sms' })
-    if (error) toast.error(f('Code incorrect', 'رمز خاطئ'))
-    else { toast.success(f('Bienvenue !', 'أهلاً!')); onSuccess() }
+    if (error) { toast.error(f('Code incorrect', 'رمز خاطئ')); setLoading(false); return }
+    toast.success(f('Bienvenue !', 'أهلاً!'))
+    onSuccess()
+    setLoading(false)
+  }
+
+  // OTP verification for phone-only registration
+  const handleVerifyRegisterOTP = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    const full = form.dialCode + form.phone.replace(/^0/, '')
+    const { data, error } = await supabase.auth.verifyOtp({ phone: full, token: otpCode, type: 'sms' })
+    if (error) { toast.error(f('Code incorrect', 'رمز خاطئ')); setLoading(false); return }
+
+    if (data?.user && pendingRegisterData) {
+      const d = pendingRegisterData
+      const address = d.addressType === 'description'
+        ? d.addressDesc
+        : `${d.street}, ${d.city}${d.zip ? ' ' + d.zip : ''}`
+      const country = COUNTRIES.find(c => c.code === d.country)
+      await supabase.from('profiles').update({
+        full_name: `${d.firstName} ${d.lastName}`,
+        first_name: d.firstName,
+        last_name: d.lastName,
+        phone: full,
+        birthdate: d.birthdate || null,
+        country: country ? (ar ? country.nameAr : country.name) : d.country,
+        address: address,
+        lang,
+      }).eq('id', data.user.id)
+    }
+
+    toast.success(f('Compte créé !', 'تم إنشاء الحساب!'))
+    onSuccess()
     setLoading(false)
   }
 
   // ── REGISTER ──
   const handleRegister = async (e) => {
     e.preventDefault()
-    if (!form.firstName || !form.lastName || !form.email || !form.password) {
-      toast.error(f('Remplissez tous les champs obligatoires', 'يرجى ملء جميع الحقول الإلزامية')); return
+    if (!form.firstName || !form.lastName) {
+      toast.error(f('Prénom et nom requis', 'الاسم واللقب مطلوبان')); return
     }
+    if (!form.email && !form.phone) {
+      toast.error(f('Email ou téléphone requis', 'البريد الإلكتروني أو رقم الهاتف مطلوب')); return
+    }
+
+    // Phone-only: send OTP
+    if (!form.email && form.phone) {
+      setPendingRegisterData({ ...form })
+      setDialCode(form.dialCode)
+      setPhoneNum(form.phone)
+      setOtpCode('')
+      await handleSendOTP(null, form.phone, form.dialCode)
+      return
+    }
+
+    // Email registration
     if (form.password !== form.confirmPassword) {
       toast.error(f('Mots de passe différents', 'كلمتا المرور غير متطابقتين')); return
     }
     if (form.password.length < 6) {
       toast.error(f('Mot de passe trop court (6 min)', 'كلمة المرور قصيرة جداً (6 على الأقل)')); return
     }
+
     setLoading(true)
     const address = form.addressType === 'description'
       ? form.addressDesc
       : `${form.street}, ${form.city}${form.zip ? ' ' + form.zip : ''}`
     const country = COUNTRIES.find(c => c.code === form.country)
-    const fullPhone = form.dialCode + form.phone.replace(/^0/, '')
+    const fullPhone = form.phone ? form.dialCode + form.phone.replace(/^0/, '') : ''
 
     const { data, error } = await supabase.auth.signUp({
       email: form.email,
@@ -147,13 +208,12 @@ export default function AuthModal({ onClose, onSuccess }) {
           phone: fullPhone,
           birthdate: form.birthdate || null,
           country: country ? (ar ? country.nameAr : country.name) : form.country,
-          address: address,
+          address,
         }
       }
     })
     if (error) { toast.error(error.message); setLoading(false); return }
 
-    // Mise à jour du profil avec toutes les infos
     if (data?.user) {
       await supabase.from('profiles').update({
         full_name: `${form.firstName} ${form.lastName}`,
@@ -162,12 +222,19 @@ export default function AuthModal({ onClose, onSuccess }) {
         phone: fullPhone,
         birthdate: form.birthdate || null,
         country: country ? (ar ? country.nameAr : country.name) : form.country,
-        address: address,
+        address,
+        lang,
       }).eq('id', data.user.id)
     }
     toast.success(f('Compte créé ! Vérifiez votre email.', 'تم إنشاء الحساب! تحقق من بريدك.'))
     onClose()
     setLoading(false)
+  }
+
+  const backStep = () => {
+    if (step === 'otp') return setStep('login-phone')
+    if (step === 'register-otp') return setStep('register')
+    setStep('choice')
   }
 
   return (
@@ -191,7 +258,7 @@ export default function AuthModal({ onClose, onSuccess }) {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between'
         }}>
           {step !== 'choice' ? (
-            <button onClick={() => setStep(step === 'otp' ? 'login-phone' : 'choice')}
+            <button onClick={backStep}
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
               <ArrowLeft size={18} style={{ transform: isRTL ? 'scaleX(-1)' : 'none' }} />
             </button>
@@ -217,7 +284,6 @@ export default function AuthModal({ onClose, onSuccess }) {
                 </p>
               </div>
 
-              {/* Email */}
               <button onClick={() => setStep('login-email')}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', gap: '14px',
@@ -240,7 +306,6 @@ export default function AuthModal({ onClose, onSuccess }) {
                 </div>
               </button>
 
-              {/* Phone */}
               <button onClick={() => setStep('login-phone')}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', gap: '14px',
@@ -323,7 +388,7 @@ export default function AuthModal({ onClose, onSuccess }) {
               </p>
               <div style={{ marginBottom: '20px' }}>
                 <label style={labelStyle}>{f('Numéro de téléphone', 'رقم الهاتف')}</label>
-                <PhoneRow dialVal={dialCode} onDial={setDialCode} phoneVal={phoneNum} onPhone={setPhoneNum} />
+                <PhoneRow dialVal={dialCode} onDial={setDialCode} phoneVal={phoneNum} onPhone={setPhoneNum} ar={ar} isRTL={isRTL} />
               </div>
               <button type="submit" disabled={loading} style={{ ...btnPrimary, background: '#4a7c59', marginBottom: '14px', opacity: loading ? 0.6 : 1 }}>
                 {loading ? f('Envoi...', 'جاري الإرسال...') : f('Envoyer le code SMS', 'إرسال رمز التحقق')}
@@ -331,7 +396,7 @@ export default function AuthModal({ onClose, onSuccess }) {
             </form>
           )}
 
-          {/* ── OTP ── */}
+          {/* ── OTP (login) ── */}
           {step === 'otp' && (
             <form onSubmit={handleVerifyOTP}>
               <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -354,10 +419,6 @@ export default function AuthModal({ onClose, onSuccess }) {
               <button type="submit" disabled={loading || otpCode.length !== 6}
                 style={{ ...btnPrimary, background: '#4a7c59', marginBottom: '12px', opacity: (loading || otpCode.length !== 6) ? 0.6 : 1 }}>
                 {loading ? f('Vérification...', 'جاري التحقق...') : f('Confirmer', 'تأكيد')}
-              </button>
-              <button type="button" onClick={() => setStep('login-phone')}
-                style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#9a9085', fontFamily: ar ? 'Arial, sans-serif' : 'inherit' }}>
-                {f('← Changer de numéro', '← تغيير الرقم')}
               </button>
             </form>
           )}
@@ -385,20 +446,64 @@ export default function AuthModal({ onClose, onSuccess }) {
                 </div>
               </div>
 
-              {/* Email */}
+              {/* Email (optionnel) */}
               <div style={{ marginBottom: '14px' }}>
-                <label style={labelStyle}>{f('Email *', 'البريد الإلكتروني *')}</label>
-                <input type="email" required value={form.email}
+                <label style={labelStyle}>
+                  {f('Email', 'البريد الإلكتروني')}
+                  <span style={{ color: '#b0a898', marginLeft: '4px', textTransform: 'none', fontSize: '11px' }}>
+                    {f('(optionnel si téléphone renseigné)', '(اختياري إذا أدخلت رقم الهاتف)')}
+                  </span>
+                </label>
+                <input type="email" value={form.email}
                   onChange={e => setForm({ ...form, email: e.target.value })}
                   placeholder="exemple@email.com" style={inputStyle} dir="ltr" />
               </div>
 
               {/* Téléphone */}
               <div style={{ marginBottom: '14px' }}>
-                <label style={labelStyle}>{f('Téléphone', 'رقم الهاتف')}</label>
-                <PhoneRow dialVal={form.dialCode} onDial={v => setForm({ ...form, dialCode: v })}
-                  phoneVal={form.phone} onPhone={v => setForm({ ...form, phone: v })} />
+                <label style={labelStyle}>
+                  {f('Téléphone', 'رقم الهاتف')}
+                  <span style={{ color: '#b0a898', marginLeft: '4px', textTransform: 'none', fontSize: '11px' }}>
+                    {f('(optionnel si email renseigné)', '(اختياري إذا أدخلت البريد الإلكتروني)')}
+                  </span>
+                </label>
+                <PhoneRow
+                  dialVal={form.dialCode} onDial={v => setForm({ ...form, dialCode: v })}
+                  phoneVal={form.phone} onPhone={v => setForm({ ...form, phone: v })}
+                  ar={ar} isRTL={isRTL}
+                />
               </div>
+
+              {/* Mot de passe — uniquement si email fourni */}
+              {form.email ? (
+                <>
+                  <div style={{ marginBottom: '14px' }}>
+                    <label style={labelStyle}>{f('Mot de passe * (6 min.)', 'كلمة المرور * (6 أحرف على الأقل)')}</label>
+                    <div style={{ position: 'relative' }}>
+                      <input type={showPass ? 'text' : 'password'} minLength={6}
+                        value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
+                        placeholder="••••••••" style={inputStyle} dir="ltr" />
+                      <button type="button" onClick={() => setShowPass(!showPass)}
+                        style={{ position: 'absolute', top: '50%', [isRTL ? 'left' : 'right']: '12px', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9a9085' }}>
+                        {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '14px' }}>
+                    <label style={labelStyle}>{f('Confirmer le mot de passe *', 'تأكيد كلمة المرور *')}</label>
+                    <input type="password" value={form.confirmPassword}
+                      onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
+                      placeholder="••••••••" style={inputStyle} dir="ltr" />
+                  </div>
+                </>
+              ) : phoneOnly ? (
+                <div style={{ marginBottom: '14px', padding: '10px 14px', background: '#eef8f1', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Phone size={15} color="#4a7c59" />
+                  <p style={{ fontSize: '12px', color: '#4a7c59', fontFamily: ar ? 'Arial, sans-serif' : 'inherit' }}>
+                    {f('Vous recevrez un code SMS pour confirmer votre compte', 'ستستلم رمز SMS لتأكيد حسابك')}
+                  </p>
+                </div>
+              ) : null}
 
               {/* Date naissance */}
               <div style={{ marginBottom: '14px' }}>
@@ -444,7 +549,6 @@ export default function AuthModal({ onClose, onSuccess }) {
                     </button>
                   ))}
                 </div>
-
                 {form.addressType === 'description' ? (
                   <>
                     <textarea value={form.addressDesc}
@@ -475,28 +579,12 @@ export default function AuthModal({ onClose, onSuccess }) {
                 )}
               </div>
 
-              {/* Mot de passe */}
-              <div style={{ marginBottom: '14px' }}>
-                <label style={labelStyle}>{f('Mot de passe * (6 min.)', 'كلمة المرور * (6 أحرف على الأقل)')}</label>
-                <div style={{ position: 'relative' }}>
-                  <input type={showPass ? 'text' : 'password'} required minLength={6}
-                    value={form.password} onChange={e => setForm({ ...form, password: e.target.value })}
-                    placeholder="••••••••" style={inputStyle} dir="ltr" />
-                  <button type="button" onClick={() => setShowPass(!showPass)}
-                    style={{ position: 'absolute', top: '50%', [isRTL ? 'left' : 'right']: '12px', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9a9085' }}>
-                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={labelStyle}>{f('Confirmer le mot de passe *', 'تأكيد كلمة المرور *')}</label>
-                <input type="password" required value={form.confirmPassword}
-                  onChange={e => setForm({ ...form, confirmPassword: e.target.value })}
-                  placeholder="••••••••" style={inputStyle} dir="ltr" />
-              </div>
-
               <button type="submit" disabled={loading} style={{ ...btnPrimary, marginBottom: '14px', opacity: loading ? 0.6 : 1 }}>
-                {loading ? f('Création du compte...', 'جاري إنشاء الحساب...') : f('Créer mon compte', 'إنشاء حسابي')}
+                {loading
+                  ? f('Création...', 'جاري الإنشاء...')
+                  : phoneOnly
+                    ? f('Envoyer le code SMS', 'إرسال رمز التحقق')
+                    : f('Créer mon compte', 'إنشاء حسابي')}
               </button>
 
               <p style={{ textAlign: 'center', fontSize: '13px', color: '#9a9085', fontFamily: ar ? 'Arial, sans-serif' : 'inherit' }}>
@@ -508,6 +596,35 @@ export default function AuthModal({ onClose, onSuccess }) {
               </p>
             </form>
           )}
+
+          {/* ── OTP REGISTER (phone-only signup) ── */}
+          {step === 'register-otp' && (
+            <form onSubmit={handleVerifyRegisterOTP}>
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#eef8f1', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                  <Phone size={24} color="#4a7c59" />
+                </div>
+                <h2 style={{ fontSize: '20px', color: '#2c3e50', marginBottom: '6px', fontFamily: ar ? 'Arial, sans-serif' : 'inherit' }}>
+                  {f('Confirmer votre numéro', 'تأكيد رقم هاتفك')}
+                </h2>
+                <p style={{ fontSize: '13px', color: '#9a9085', fontFamily: ar ? 'Arial, sans-serif' : 'inherit' }}>
+                  {f(`Code envoyé au ${form.dialCode} ${form.phone}`, `تم إرسال الرمز إلى ${form.dialCode} ${form.phone}`)}
+                </p>
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={labelStyle}>{f('Code à 6 chiffres', 'الرمز المكون من 6 أرقام')}</label>
+                <input type="text" value={otpCode}
+                  onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="000000" maxLength={6} required
+                  style={{ ...inputStyle, textAlign: 'center', fontSize: '24px', letterSpacing: '10px' }} dir="ltr" />
+              </div>
+              <button type="submit" disabled={loading || otpCode.length !== 6}
+                style={{ ...btnPrimary, background: '#4a7c59', marginBottom: '12px', opacity: (loading || otpCode.length !== 6) ? 0.6 : 1 }}>
+                {loading ? f('Vérification...', 'جاري التحقق...') : f('Créer mon compte', 'إنشاء حسابي')}
+              </button>
+            </form>
+          )}
+
         </div>
       </div>
     </div>
