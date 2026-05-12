@@ -34,6 +34,17 @@ const phoneSyntheticEmail = (dialCode, phone) => {
 }
 
 // Defined OUTSIDE to avoid focus loss on re-render
+const PasswordInput = ({ value, onChange, show, onToggle, placeholder = '••••••••', inputStyle, isRTL }) => (
+  <div style={{ position: 'relative' }}>
+    <input type={show ? 'text' : 'password'} value={value} onChange={onChange}
+      placeholder={placeholder} style={inputStyle} dir="ltr" />
+    <button type="button" onClick={onToggle}
+      style={{ position: 'absolute', top: '50%', [isRTL ? 'left' : 'right']: '12px', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9a9085' }}>
+      {show ? <EyeOff size={15} /> : <Eye size={15} />}
+    </button>
+  </div>
+)
+
 const PhoneRow = ({ dialVal, onDial, phoneVal, onPhone, ar, isRTL }) => {
   const style = {
     width: '100%', padding: '12px 16px', fontSize: '14px',
@@ -115,17 +126,6 @@ export default function AuthModal({ onClose, onSuccess }) {
     cursor: 'pointer', fontFamily: ar ? 'Arial, sans-serif' : 'inherit', fontWeight: '500',
   }
   const btnGreen = { ...btnPrimary, background: 'linear-gradient(135deg, #4a7c59, #5a9068)' }
-
-  const PasswordInput = ({ value, onChange, show, onToggle, placeholder = '••••••••' }) => (
-    <div style={{ position: 'relative' }}>
-      <input type={show ? 'text' : 'password'} value={value} onChange={onChange}
-        placeholder={placeholder} style={inputStyle} dir="ltr" />
-      <button type="button" onClick={onToggle}
-        style={{ position: 'absolute', top: '50%', [isRTL ? 'left' : 'right']: '12px', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#9a9085' }}>
-        {show ? <EyeOff size={15} /> : <Eye size={15} />}
-      </button>
-    </div>
-  )
 
   // ── LOGIN EMAIL ──
   const handleLoginEmail = async (e) => {
@@ -420,7 +420,7 @@ export default function AuthModal({ onClose, onSuccess }) {
               </div>
               <div style={{ marginBottom: '12px' }}>
                 <label style={labelStyle}>{f('Mot de passe', 'كلمة المرور')}</label>
-                <PasswordInput value={password} onChange={e => setPassword(e.target.value)} show={showPass} onToggle={() => setShowPass(!showPass)} />
+                <PasswordInput value={password} onChange={e => setPassword(e.target.value)} show={showPass} onToggle={() => setShowPass(!showPass)} inputStyle={inputStyle} isRTL={isRTL} />
               </div>
               <p style={{ textAlign: isRTL ? 'left' : 'right', marginBottom: '20px' }}>
                 <button type="button" onClick={() => { setResetEmail(email); setStep('forgot-email') }}
@@ -453,7 +453,7 @@ export default function AuthModal({ onClose, onSuccess }) {
               </div>
               <div style={{ marginBottom: '12px' }}>
                 <label style={labelStyle}>{f('Mot de passe', 'كلمة المرور')}</label>
-                <PasswordInput value={loginPassword} onChange={e => setLoginPassword(e.target.value)} show={showPass} onToggle={() => setShowPass(!showPass)} />
+                <PasswordInput value={loginPassword} onChange={e => setLoginPassword(e.target.value)} show={showPass} onToggle={() => setShowPass(!showPass)} inputStyle={inputStyle} isRTL={isRTL} />
               </div>
               <p style={{ textAlign: isRTL ? 'left' : 'right', marginBottom: '20px' }}>
                 <button type="button" onClick={() => { setResetDialCode(loginDialCode); setResetPhone(loginPhone); setStep('forgot-phone') }}
@@ -537,11 +537,11 @@ export default function AuthModal({ onClose, onSuccess }) {
               </div>
               <div style={{ marginBottom: '14px' }}>
                 <label style={labelStyle}>{f('Nouveau mot de passe', 'كلمة المرور الجديدة')}</label>
-                <PasswordInput value={resetNewPassword} onChange={e => setResetNewPassword(e.target.value)} show={showPass} onToggle={() => setShowPass(!showPass)} />
+                <PasswordInput value={resetNewPassword} onChange={e => setResetNewPassword(e.target.value)} show={showPass} onToggle={() => setShowPass(!showPass)} inputStyle={inputStyle} isRTL={isRTL} />
               </div>
               <div style={{ marginBottom: '20px' }}>
                 <label style={labelStyle}>{f('Confirmer', 'تأكيد')}</label>
-                <PasswordInput value={resetConfirmPassword} onChange={e => setResetConfirmPassword(e.target.value)} show={showPass2} onToggle={() => setShowPass2(!showPass2)} />
+                <PasswordInput value={resetConfirmPassword} onChange={e => setResetConfirmPassword(e.target.value)} show={showPass2} onToggle={() => setShowPass2(!showPass2)} inputStyle={inputStyle} isRTL={isRTL} />
               </div>
               <button type="submit" disabled={loading || otpCode.length !== 6}
                 style={{ ...btnGreen, opacity: (loading || otpCode.length !== 6) ? 0.6 : 1 }}>
@@ -597,11 +597,11 @@ export default function AuthModal({ onClose, onSuccess }) {
 
               <div style={{ marginBottom: '14px' }}>
                 <label style={labelStyle}>{f('Mot de passe * (6 min.)', 'كلمة المرور * (6 أحرف على الأقل)')}</label>
-                <PasswordInput value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} show={showPass} onToggle={() => setShowPass(!showPass)} />
+                <PasswordInput value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} show={showPass} onToggle={() => setShowPass(!showPass)} inputStyle={inputStyle} isRTL={isRTL} />
               </div>
               <div style={{ marginBottom: '14px' }}>
                 <label style={labelStyle}>{f('Confirmer le mot de passe *', 'تأكيد كلمة المرور *')}</label>
-                <PasswordInput value={form.confirmPassword} onChange={e => setForm({ ...form, confirmPassword: e.target.value })} show={showPass2} onToggle={() => setShowPass2(!showPass2)} />
+                <PasswordInput value={form.confirmPassword} onChange={e => setForm({ ...form, confirmPassword: e.target.value })} show={showPass2} onToggle={() => setShowPass2(!showPass2)} inputStyle={inputStyle} isRTL={isRTL} />
               </div>
 
               {!form.email && form.phone && (
